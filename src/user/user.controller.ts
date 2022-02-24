@@ -1,29 +1,65 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserDto } from './dto/create-user.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SearchUserDto } from './dto/search-user.dto';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from './entities/user.entity';
+import { CakeEntity } from '../cake/entities/cake.entity';
 
+@ApiTags('user')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() dto: CreateUserDto) {
-    return this.userService.create(dto);
-  }
-
   @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'get all users',
+    type: [UserEntity],
+  })
   findAll() {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findById(+id);
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getProfile(@Request() req) {
+    return this.userService.findById(req.user.id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  @ApiBody({ type: UpdateUserDto })
+  update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(+req.user.id, updateUserDto);
+  }
+
+  @Get('search')
+  search(@Query() dto: SearchUserDto) {
+    return this.userService.search(dto);
+  }
+
+  @Get(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'get user by id',
+    type: UserEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'not found',
+  })
+  findOne(@Param('id') id: string) {
+    return this.userService.findById(+id);
   }
 }

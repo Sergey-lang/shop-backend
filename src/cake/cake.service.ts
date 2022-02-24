@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCakeDto } from './dto/create-cake.dto';
 import { UpdateCakeDto } from './dto/update-cake.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -96,7 +101,10 @@ export class CakeService {
     const find = await this.repository.findOne(+id);
 
     if (!find) {
-      throw new NotFoundException('Товар не найден');
+      throw new HttpException(
+        `Товар c id ${id} не найден`,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return find;
@@ -106,7 +114,10 @@ export class CakeService {
     const find = await this.repository.findOne(+id);
 
     if (!find) {
-      throw new NotFoundException('Товар не найден');
+      throw new HttpException(
+        `Товар c id ${id} не найден`,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return this.repository.update(id, dto);
@@ -116,7 +127,10 @@ export class CakeService {
     const find = await this.repository.findOne(+id);
 
     if (!find) {
-      throw new NotFoundException('Товар не найден');
+      throw new HttpException(
+        `Товар c id ${id} не найден`,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return this.repository.delete(id);
