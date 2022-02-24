@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { CreateCakeDto } from '../cake/dto/create-cake.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -13,9 +16,9 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+  @Post('register')
+  @ApiBody({ type: CreateCakeDto })
+  register(@Body() dto: CreateUserDto) {
+    return this.authService.register(dto);
   }
 }
