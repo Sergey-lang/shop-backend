@@ -7,6 +7,12 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
+export enum UserRole {
+  Admin = 'ADMIN',
+  Moderator = 'MODERATOR',
+  User = 'CLIENT',
+}
+
 @Entity('users')
 export class UserEntity {
   @ApiProperty()
@@ -14,20 +20,20 @@ export class UserEntity {
   id: number;
 
   @ApiProperty()
-  @Column()
+  @Column({ nullable: false })
   firstName: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ nullable: false })
   lastName: string;
 
-  @ApiProperty()
-  @Column()
-  role: string;
+  @Column({ nullable: false })
+  role: UserRole;
 
   @ApiProperty()
   @Column({
     unique: true,
+    nullable: false,
   })
   email: string;
 
