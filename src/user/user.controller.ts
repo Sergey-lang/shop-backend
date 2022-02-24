@@ -12,7 +12,7 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { SearchUserDto } from './dto/search-user.dto';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import { CakeEntity } from '../cake/entities/cake.entity';
 
@@ -21,44 +21,46 @@ import { CakeEntity } from '../cake/entities/cake.entity';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
+  @ApiOperation({ summary: 'Gel all users' })
   @ApiResponse({
     status: 200,
-    description: 'get all users',
     type: [UserEntity],
   })
+  @Get()
   findAll() {
     return this.userService.findAll();
   }
 
+  @ApiOperation({ summary: 'Get own profile' })
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Request() req) {
     return this.userService.findById(req.user.id);
   }
 
+  @ApiOperation({ summary: 'Update own profile' })
+  @ApiBody({ type: UpdateUserDto })
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  @ApiBody({ type: UpdateUserDto })
   update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+req.user.id, updateUserDto);
   }
 
+  @ApiOperation({ summary: 'Search users' })
   @Get('search')
   search(@Query() dto: SearchUserDto) {
     return this.userService.search(dto);
   }
 
-  @Get(':id')
+  @ApiOperation({ summary: 'Get one user' })
   @ApiResponse({
     status: 200,
-    description: 'get user by id',
     type: UserEntity,
   })
   @ApiResponse({
     status: 404,
-    description: 'not found',
   })
+  @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findById(+id);
   }
